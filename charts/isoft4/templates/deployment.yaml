@@ -1,0 +1,45 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ include "isoft4.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "isoft4.name" . }}
+    helm.sh/chart: {{ include "isoft4.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "isoft4.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "isoft4.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+          - /home/run.sh
+          ports:
+            - name: ssh
+              containerPort: 22
+              protocol: TCP
+          volumeMounts:
+          {{- if ( .Values.persistence.enabled ) }}
+          - mountPath: /mnt
+            name: vol1
+          {{- end }}
+      {{- if ( .Values.persistence.enabled ) }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.persistence.path }}
+            type: "DirectoryOrCreate"
+          name: vol1
+      {{- end }}
+      nodeSelector:
+         group: ok

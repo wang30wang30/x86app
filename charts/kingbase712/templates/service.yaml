@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kingbase.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "kingbase.name" . }}
+    helm.sh/chart: {{ include "kingbase.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  type: {{ .Values.ngnix.service.type }}
+  ports:
+    - port: 54321
+      targetPort: 54321
+      protocol: TCP
+      name: kingbase
+      {{- if (and (eq .Values.ngnix.service.type "NodePort") (not (empty .Values.ngnix.service.nodePort)))}}
+      nodePort: {{ .Values.ngnix.service.nodePort }}
+      {{- end }}
+    - port: 22
+      targetPort: 22
+      protocol: TCP
+      name: ssh
+      {{- if (and (eq .Values.ngnix.service.type "NodePort") (not (empty .Values.ssh.service.nodePort)))}}
+      nodePort: {{ .Values.ssh.service.nodePort }}
+      {{- end }}
+  selector:
+    app.kubernetes.io/name: {{ include "kingbase.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}

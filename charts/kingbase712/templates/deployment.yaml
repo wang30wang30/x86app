@@ -1,0 +1,46 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ include "kingbase.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "kingbase.name" . }}
+    helm.sh/chart: {{ include "kingbase.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "kingbase.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "kingbase.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: kingbase
+              containerPort: 54321
+              protocol: TCP
+            - name: ssh
+              containerPort: 22
+              protocol: TCP
+          volumeMounts:
+          {{- if ( .Values.persistence.enabled ) }}
+          - mountPath: /home/kingbase/Kingbase/ES/V7/data
+            name: vol1
+          {{- end }}
+      {{- if ( .Values.persistence.enabled ) }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.persistence.path }}
+            type: "DirectoryOrCreate"
+          name: vol1
+      {{- end }}
+      nodeSelector:
+         group: ok
