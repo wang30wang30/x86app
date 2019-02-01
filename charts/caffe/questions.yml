@@ -1,0 +1,37 @@
+categories:
+- caffe
+questions:
+- variable: caffe.service.type
+  default: "ClusterIP"
+  description: "服务类型"
+  type: enum
+  group: "服务配置界面"
+  options:
+    - "ClusterIP"
+    - "NodePort"
+  required: true
+  label: 服务类型
+  show_subquestion_if: "NodePort"
+  subquestions:
+  - variable: caffe.service.nodePort
+    default: ""
+    description: "NodePort caffe 服务端口（选择30000-32767)"
+    type: int
+    min: 30000
+    max: 32767
+    label: NodePort 端口号
+- variable: persistence.enabled
+  default: "false"
+  description: "是否为caffe加载数据卷"
+  type: boolean
+  required: true
+  label: 加载caffe数据卷 
+  show_subquestion_if: true
+  group: "caffe 存储卷"
+  subquestions:
+  - variable: persistence.path
+    default: ""
+    description: "挂载主机目录"
+    type: string
+    label: 主机目录
+    required: true
