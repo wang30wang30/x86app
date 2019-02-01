@@ -1,0 +1,39 @@
+categories:
+- isoftbak
+questions:
+- variable: isoftbak.service.nodePort
+  default: ""
+  description: "NodePort 备份软件界面服务端口（选择30000-32767)"
+  type: int
+  min: 30000
+  max: 32767
+  label: NodePort 备份界面端口号
+- variable: ssh.service.nodePort
+  default: ""
+  description: "NodePort ssh登录端口（选择30000-32767)"
+  type: int
+  min: 30000
+  max: 32767
+  label: ssh服务端口号
+- variable: persistence.enabled
+  default: "false"
+  description: "备份软件本地路径配置"
+  type: boolean
+  required: true
+  label: 备份软件数据卷设置 
+  show_subquestion_if: true
+  group: "备份软件数据卷"
+  subquestions:
+  - variable: persistence.path
+    default: ""
+    description: "备份数据路径"
+    type: string
+    label: 备份数据路径
+    required: true
+  - variable: persistence1.path
+    default: ""
+    description: "数据库数据卷挂载路径"
+    type: string
+    label: 数据库路径
+    required: true
+

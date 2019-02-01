@@ -1,0 +1,76 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ include "isoftbak.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "isoftbak.name" . }}
+    helm.sh/chart: {{ include "isoftbak.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "isoftbak.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "isoftbak.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: LD_LIBRARY_PATH
+            value: /home/kingbase/Kingbase/ES/V7/lib/
+          ports:
+            - name: isofttom
+              containerPort: 8080
+              protocol: TCP
+            - name: ssh
+              containerPort: 22
+              protocol: TCP
+          volumeMounts:
+          {{- if ( .Values.persistence.enabled ) }}
+          - mountPath: /data
+            name: vol1
+          {{- end }}
+          - mountPath: /etc/localtime
+            name: vol3
+        - name: isoftbkdata
+          image:  hub.i-soft.com.cn:5080/x86app/bakdb:latest
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: MYSQL_ROOT_PASSWORD
+            value: Newp@ssw0rd
+          ports:
+            - name: mysql
+              containerPort: 3306
+              protocol: TCP
+          volumeMounts:
+          {{- if ( .Values.persistence.enabled ) }}
+          - mountPath: /var/lib/mysql
+            name: vol2
+          {{- end }}
+          - mountPath: /etc/localtime
+            name: vol3
+      volumes:
+        - hostPath:
+            path: /etc/localtime
+            type: ""
+          name: vol3
+      {{- if ( .Values.persistence.enabled ) }}
+        - hostPath:
+            path: {{ .Values.persistence.path }}
+            type: "DirectoryOrCreate"
+          name: vol1
+        - hostPath:
+            path: {{ .Values.persistence1.path }}
+            type: "DirectoryOrCreate"
+          name: vol2
+      {{- end }}
+      nodeSelector:
+         group: ok

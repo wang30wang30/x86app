@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "isoftbak.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "isoftbak.name" . }}
+    helm.sh/chart: {{ include "isoftbak.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: isoftbk
+      nodePort: {{ .Values.isoftbak.service.nodePort }}
+    - port: 22
+      targetPort: 22
+      protocol: TCP
+      name: ssh
+      nodePort: {{ .Values.ssh.service.nodePort }}
+  selector:
+    app.kubernetes.io/name: {{ include "isoftbak.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
