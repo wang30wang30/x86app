@@ -1,34 +1,30 @@
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: {{ include "caffe.fullname" . }}
+  name: {{ include "tensorflow.fullname" . }}
   labels:
-    app.kubernetes.io/name: {{ include "caffe.name" . }}
-    helm.sh/chart: {{ include "caffe.chart" . }}
+    app.kubernetes.io/name: {{ include "tensorflow.name" . }}
+    helm.sh/chart: {{ include "tensorflow.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "caffe.name" . }}
+      app.kubernetes.io/name: {{ include "tensorflow.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "caffe.name" . }}
+        app.kubernetes.io/name: {{ include "tensorflow.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          args:
-          - sh
-          - -c
-          - /opt/caffe/examples/startcaffe.sh
           ports:
-            - name: caffe
+            - name: jupyter
               containerPort: 8888
               protocol: TCP
           volumeMounts:
@@ -45,4 +41,3 @@ spec:
       {{- end }}
       nodeSelector:
          group: ok
-
