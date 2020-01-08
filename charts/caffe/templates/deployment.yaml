@@ -43,6 +43,4 @@ spec:
             type: "DirectoryOrCreate"
           name: vol1
       {{- end }}
-      nodeSelector:
-         group: ok
 
